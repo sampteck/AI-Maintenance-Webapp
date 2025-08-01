@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Predictive Maintenance System</title>
+  <link rel="stylesheet" href="styleN.css" />
+</head>
+<body>
+  <h2>AI Predictive Maintenance</h2>
+
+  <form id="inputForm">
+    <label>Temperature (°C): <input type="number" id="tempInput" required /></label><br />
+    <label>Vibration (m/s²): <input type="number" id="vibrationInput" required /></label><br />
+    <label>Pressure (bar): <input type="number" id="pressureInput" required /></label><br />
+
+    <button type="button" id="simulateBtn">Simulate Random Data</button>
+    <button type="submit">Run Diagnosis</button>
+  </form>
+
+  <h3>System Status:</h3>    
+  <div id="outputArea"></div>
+
+  <h3>Sensor Readings Graph:</h3>
+  <canvas id="statusChart" width="400" height="200"></canvas>
+
+  <br />
+  <button id="downloadCSV">Download Logs as CSV</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
