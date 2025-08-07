@@ -2,32 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Predictive Maintenance System</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Predictive Maintenance</title>
+  <link rel="stylesheet" href="Style1.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h2>AI Predictive Maintenance</h2>
 
-  <form id="inputForm">
-    <label>Temperature (°C): <input type="number" id="tempInput" required /></label><br />
-    <label>Vibration (m/s²): <input type="number" id="vibrationInput" required /></label><br />
-    <label>Pressure (bar): <input type="number" id="pressureInput" required /></label><br />
+  <!-- Header -->
+  <header class="top-bar">
+    <div class="branding">
+      <img src="image2.png" alt="Logo" class="logo-img" />
+      <h1 class="main-title">AI Predictive Maintenance</h1>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+  </header>
 
-    <button type="button" id="simulateBtn">Simulate Random Data</button>
-    <button type="submit">Run Diagnosis</button>
-  </form>
+  <!-- Main App -->
+  <div id="app">
+    
+    <!-- Manual Sensor Input -->
+    <section class="card animated fadeIn">
+      <h2>Manual Sensor Input</h2>
+      <input type="number" id="tempInput" placeholder="Temperature (°C)" />
+      <input type="number" id="vibrationInput" placeholder="Vibration (Hz)" />
+      <button onclick="submitManualInput()">Submit</button>
+    </section>
 
-  <h3>System Status:</h3>    
-  <div id="outputArea"></div>
+    <!-- Simulate Data -->
+    <section class="card animated fadeIn delay-1">
+      <h2>Simulate Random Sensor Data</h2>
+      <button onclick="simulateSensorData()">Simulate</button>
+    </section>
 
-  <h3>Sensor Readings Graph:</h3>
-  <canvas id="statusChart" width="400" height="200"></canvas>
+    <!-- Fault Prediction Chart -->
+    <section class="card animated fadeIn delay-2">
+      <h2>Predicted Fault Trend</h2>
+      <canvas id="faultChart" width="400" height="200"></canvas>
+    </section>
 
-  <br />
-  <button id="downloadCSV">Download Logs as CSV</button>
+    <!-- Maintenance Alert -->
+    <section class="card animated fadeIn delay-3">
+      <h2>System Status</h2>
+      <p id="statusDisplay">Awaiting input...</p>
+    </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
+    <!-- Export Logs -->
+    <section class="card animated fadeIn delay-4">
+      <h2>Export Logs</h2>
+      <button onclick="exportCSV()">Export to CSV</button>
+      <button onclick="window.print()">Print/PDF</button>
+    </section>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- JavaScript -->
+  <script src="scrpt.js"></script>
 </body>
 </html>
