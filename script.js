@@ -1,79 +1,121 @@
-document.getElementById('inputForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-
-  const temp = parseFloat(document.getElementById('tempInput').value);
-  const vibration = parseFloat(document.getElementById('vibrationInput').value);
-  const pressure = parseFloat(document.getElementById('pressureInput').value);
-
-  const outputArea = document.getElementById('outputArea');
-
-  let result;
-  if (temp > 80 || vibration > 6 || pressure > 120) {
-    result = "⚠️ Warning: Maintenance Required";
-    outputArea.innerHTML = `<p style="color:red;">${result}</p>`;
-  } else { 
-    result = "✅ All Systems Normal";
-    outputArea.innerHTML = `<p style="color:green;">${result}</p>`;
+// Dark mode persistence
+document.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme");
+  if (theme === "dark") {
+    document.body.classList.add("dark");
   }
-
-  updateChart(temp, vibration, pressure);
-  logData(temp, vibration, pressure, result);
+  initChart();
 });
 
-// Chart.js bar chart setup
-const ctx = document.getElementById('statusChart').getContext('2d');
-const statusChart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['Temperature', 'Vibration', 'Pressure'],
-    datasets: [{
-      label: 'Sensor Readings',
-      data: [0, 0, 0],
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-    }]
-  },
-  options: {
-    scales: {
-      y: {
-        beginAtZero: true
+// Toggle Theme
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+}
+
+// Show toast
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 3000);
+}
+
+// Chart Data
+let faultChart;
+let labels = [];
+let data = [];
+
+// Initialize Chart
+function initChart() {
+  const ctx = document.getElementById("faultChart").getContext("2d");
+  faultChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Fault Risk (%)",
+        data: data,
+        backgroundColor: "rgba(255,99,132,0.2)",
+        borderColor: "rgba(255,99,132,1)",
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true,
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
       }
     }
-  }
-});
-
-// Function to update chart
-function updateChart(temp, vibration, pressure) {
-  statusChart.data.datasets[0].data = [temp, vibration, pressure];
-  statusChart.update();
-}
-
-// Auto-simulate button
-document.getElementById('simulateBtn').addEventListener('click', () => {
-  document.getElementById('tempInput').value = (Math.random() * 100).toFixed(1);
-  document.getElementById('vibrationInput').value = (Math.random() * 10).toFixed(1);
-  document.getElementById('pressureInput').value = (Math.random() * 150).toFixed(1);
-});
-
-// Logging system
-const logs = [];
-
-function logData(temp, vibration, pressure, result) {
-  const timestamp = new Date().toLocaleString();
-  logs.push({ timestamp, temp, vibration, pressure, result });
-}
-
-// Export logs as CSV
-document.getElementById('downloadCSV').addEventListener('click', () => {
-  let csvContent = "data:text/csv;charset=utf-8,Timestamp,Temperature,Vibration,Pressure,Result\n";
-  logs.forEach(log => {
-    csvContent += `${log.timestamp},${log.temp},${log.vibration},${log.pressure},${log.result}\n`;
   });
+}
 
-  const encodedUri = encodeURI(csvContent);
+// Manual Input
+function submitManualInput() {
+  const temp = parseFloat(document.getElementById("tempInput").value);
+  const vibration = parseFloat(document.getElementById("vibrationInput").value);
+  if (isNaN(temp) || isNaN(vibration)) {
+    showToast("Please enter both temperature and vibration values.");
+    return;
+  }
+  processSensorData(temp, vibration);
+}
+
+// Simulate Data
+function simulateSensorData() {
+  const temp = Math.floor(Math.random() * 100);
+  const vibration = Math.floor(Math.random() * 50);
+  processSensorData(temp, vibration);
+}
+
+// Predictive Maintenance Logic
+function processSensorData(temp, vibration) {
+  const risk = Math.min(100, Math.floor((temp + vibration) / 1.5));
+  const timestamp = new Date().toLocaleTimeString();
+
+  // Update chart
+  labels.push(timestamp);
+  data.push(risk);
+  if (labels.length > 10) {
+    labels.shift();
+    data.shift();
+  }
+  faultChart.update();
+
+  // Display status
+  const status = document.getElementById("statusDisplay");
+  if (risk > 80) {
+    status.innerText = `Warning: High maintenance risk detected! (${risk}%)`;
+    status.style.color = "red";
+  } else if (risk > 50) {
+    status.innerText = `Caution: Moderate risk. Monitor system. (${risk}%)`;
+    status.style.color = "orange";
+  } else {
+    status.innerText = `Normal: System running smoothly. (${risk}%)`;
+    status.style.color = "green";
+  }
+
+  showToast("Sensor data processed successfully.");
+}
+
+// Export to CSV
+function exportCSV() {
+  let csv = "Time,Fault Risk (%)\n";
+  for (let i = 0; i < labels.length; i++) {
+    csv += `${labels[i]},${data[i]}\n`;
+  }
+
+  const blob = new Blob([csv], { type: "text/csv" });
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "ai_maintenance_logs.csv");
-  document.body.appendChild(link);
+  link.href = URL.createObjectURL(blob);
+  link.download = "maintenance_data.csv";
   link.click();
-  document.body.removeChild(link);
-});
+
+  showToast("CSV exported!");
+}
